@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const { User } = require("../models/user.model");
+const { Post } = require("../models/post.model");
 const { authVerify } = require("../middlewares/authVerify");
 
 router
@@ -11,8 +12,14 @@ router
     const { _id } = req.params;
     try {
       const findUserById = await User.findById(_id);
+      const getAllPostsOfUser = await Post.find({ user: _id });
       const { password, ...rest } = findUserById._doc;
-      res.status(201).json({ success: true, message: "User Found", rest });
+      res.status(201).json({
+        success: true,
+        message: "User Found",
+        rest,
+        getAllPostsOfUser,
+      });
     } catch (err) {
       return res.status(500).json({
         success: false,
@@ -20,6 +27,7 @@ router
       });
     }
   })
+
   // update User
   .put(authVerify, async (req, res) => {
     const { _id } = req.params;
@@ -111,9 +119,10 @@ router.route("/:_id/follow").put(authVerify, async (req, res) => {
       if (!getParamsUser.followers.includes(user._id)) {
         await getParamsUser.updateOne({ $push: { followers: user._id } });
         await getCurrentUser.updateOne({ $push: { following: _id } });
+        console.log("fol");
         res
           .status(200)
-          .josn({ success: true, message: "You Just Followed One User" });
+          .json({ success: true, message: "You Just Followed One User" });
       } else {
         res
           .status(403)
@@ -129,6 +138,37 @@ router.route("/:_id/follow").put(authVerify, async (req, res) => {
     res
       .status(403)
       .json({ success: false, message: "You Can't Follow Yourself!!" });
+  }
+});
+router.route("/:_id/unfollow").put(authVerify, async (req, res) => {
+  const { _id } = req.params;
+  const user = req.user;
+  if (_id !== user._id) {
+    try {
+      const getCurrentUser = await User.findById(user._id);
+      const getParamsUser = await User.findById(_id);
+      if (getParamsUser.followers.includes(user._id)) {
+        await getParamsUser.updateOne({ $pull: { followers: user._id } });
+        await getCurrentUser.updateOne({ $pull: { following: _id } });
+        console.log("here");
+        res
+          .status(200)
+          .json({ success: true, message: "You Just unFollowed One User" });
+      } else {
+        res
+          .status(403)
+          .json({ success: false, message: "You Don't Follow This User" });
+      }
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Something Went Wrong,",
+      });
+    }
+  } else {
+    res
+      .status(403)
+      .json({ success: false, message: "You Can't unFollow Yourself!!" });
   }
 });
 module.exports = { router };
