@@ -24,4 +24,14 @@ const registerValidation = (data) => {
   return joiSchema.validate(data);
 };
 
-module.exports = { loginValidation, registerValidation };
+const postValidation = (data) => {
+  const joiSchema = Joi.object({
+    user: Joi.string(),
+    description: Joi.string().min(5).max(300),
+    image: Joi.string(),
+    likes: Joi.array(),
+  });
+  return joiSchema.validate(data);
+};
+
+module.exports = { loginValidation, registerValidation, postValidation };
