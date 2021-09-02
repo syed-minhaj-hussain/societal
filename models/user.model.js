@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema(
     },
     profilePicture: {
       type: String,
-      default: "",
+      default: "https://i.ibb.co/RztnCHv/user.png",
     },
     coverPicture: {
       type: String,
