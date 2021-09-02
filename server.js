@@ -19,5 +19,6 @@ app.use("/login", loginRouter);
 app.use("/register", registerRouter);
 app.use("/users", usersRouter);
 app.use("/post", postRouter);
+app.get("/", (req, res) => res.json({ success: true, message: "Hi" }));
 
 app.listen(PORT, () => console.log("server started at PORT :", PORT));

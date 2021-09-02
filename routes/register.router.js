@@ -3,12 +3,13 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const { User } = require("../models/user.model");
 const { registerValidation } = require("../validation");
+const { response } = require("express");
 
 router.route("/").post(async (req, res) => {
   const newUser = req.body;
   const { error } = registerValidation(newUser);
   if (error) {
-    return res.json({ message: error.details[0].message });
+    return res.json({ success: false, message: error.details[0].message });
   }
   try {
     const checkUserName = await User.findOne({ username: newUser.username });

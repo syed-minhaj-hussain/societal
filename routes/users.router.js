@@ -13,7 +13,8 @@ router
     try {
       const findUserById = await User.findById(_id);
       const getAllPostsOfUser = await Post.find({ user: _id });
-      const { password, ...rest } = findUserById._doc;
+      const { password, createdAt, updatedAt, __v, ...rest } =
+        findUserById._doc;
       res.status(201).json({
         success: true,
         message: "User Found",

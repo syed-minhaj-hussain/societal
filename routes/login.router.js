@@ -17,13 +17,13 @@ router
     const user = req.body;
     const { error } = loginValidation(user);
     if (error) {
-      return res.json({ message: error.details[0].message });
+      return res.json({ success: false, message: error.details[0].message });
     }
     try {
       const findUser = await User.findOne({ email: user.email });
       if (!findUser) {
-        res
-          .status(401)
+        return res
+          .status(403)
           .json({ success: false, message: "user doesn't exists" });
       }
       const verifyUserPassowrd = await bcrypt.compare(
@@ -42,9 +42,15 @@ router
           expiresIn: "24h",
         }
       );
+      const { password, __v, updatedAt, createdAt, ...userDetails } =
+        findUser._doc;
+
+      // console.log(userDetails);
+      const userId = findUser._id.toString();
       res.status(200).json({
         success: true,
         authToken,
+        userId,
         message: "User Loggedin Successfully",
       });
     } catch (err) {
