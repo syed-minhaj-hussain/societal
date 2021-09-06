@@ -13,12 +13,59 @@ router
     try {
       const findUserById = await User.findById(_id);
       const getAllPostsOfUser = await Post.find({ user: _id });
-      const { password, createdAt, updatedAt, __v, ...rest } =
-        findUserById._doc;
+      const {
+        password,
+        createdAt,
+        updatedAt,
+        followers,
+        following,
+        __v,
+        ...rest
+      } = findUserById._doc;
+      const userFollowers = await Promise.all(
+        findUserById.followers.map((userId) => User.findById(userId))
+      );
+      const userFollowing = await Promise.all(
+        findUserById.following.map((userId) => User.findById(userId))
+      );
+      const myFollowing = userFollowing?.map(
+        ({
+          _doc: {
+            password,
+            __v,
+            createdAt,
+            updatedAt,
+            followers,
+            following,
+            coverPicture,
+            email,
+            ...user
+          },
+        }) => user
+      );
+      const myFollowers = userFollowers?.map(
+        ({
+          _doc: {
+            password,
+            __v,
+            createdAt,
+            updatedAt,
+            followers,
+            following,
+            coverPicture,
+            location,
+            description,
+            email,
+            ...user
+          },
+        }) => user
+      );
       res.status(201).json({
         success: true,
         message: "User Found",
         rest,
+        myFollowers,
+        myFollowing,
         getAllPostsOfUser,
       });
     } catch (err) {
@@ -120,7 +167,7 @@ router.route("/:_id/follow").put(authVerify, async (req, res) => {
       if (!getParamsUser.followers.includes(user._id)) {
         await getParamsUser.updateOne({ $push: { followers: user._id } });
         await getCurrentUser.updateOne({ $push: { following: _id } });
-        console.log("fol");
+
         res
           .status(200)
           .json({ success: true, message: "You Just Followed One User" });

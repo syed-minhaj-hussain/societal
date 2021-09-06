@@ -9,7 +9,7 @@ router.route("/").post(authVerify, async (req, res) => {
   const newPost = req.body;
   const { error } = postValidation(newPost);
   if (error) {
-    return res.json({ message: error.details[0].message });
+    return res.json({ success: false, message: error.details[0].message });
   }
   const savedPost = new Post({ ...newPost, user: user._id });
   try {
@@ -43,7 +43,7 @@ router
     const updatedPost = req.body;
     const { error } = postValidation(updatedPost);
     if (error) {
-      return res.json({ message: error.details[0].message });
+      return res.json({ success: false, message: error.details[0].message });
     }
     try {
       const checkIfPostAvailable = await Post.findById(postId);
