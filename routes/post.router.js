@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
+
 const { authVerify } = require("../middlewares/authVerify");
-const { handleOptions } = require("../middlewares/handleOptions");
+const { extractPostByPostId } = require("../middlewares/extractPostByPostId");
 const { Post } = require("../models/post.model");
 const { postValidation } = require("../validation");
 
@@ -91,42 +92,41 @@ router
     }
   });
 
-router
-  .route("/:postId/like")
-  .put(handleOptions, authVerify, async (req, res) => {
-    // if (req.method == "OPTIONS") {
-    //   res.set("Access-Control-Allow-Origin", "*");
-    //   res.set("Access-Control-Allow-Headers", "Content-Type");
-    //   res.status(204).send("");
-    // }
-    console.log("like");
-    const { _id } = req.user;
-    const { postId } = req.params;
-    console.log({ postId });
-    console.log({ _id });
-    try {
-      const getPostById = await Post.findById(postId);
-      console.log({ getPostById });
-      if (!getPostById) {
-        return res
-          .status(403)
-          .json({ success: false, message: "Post Doesn't Exists!" });
-      }
-      if (user._id === getPostById.user.toString()) {
-        return res
-          .status(403)
-          .json({ success: false, message: "You Can't Like Yourself!" });
-      }
-      if (!getPostById.likes.includes(user._id)) {
-        await getPostById.updateOne({ $push: { likes: user._id } });
-        res.status(200).json({ success: true, message: "Post Liked!" });
-      } else {
-        await getPostById.updateOne({ $pull: { likes: user._id } });
-        res.status(200).json({ success: true, message: "Post Unliked!" });
-      }
-    } catch (err) {
-      res.status(500).json(err);
+router.param("postId", extractPostByPostId);
+router.route("/:postId/like").get(authVerify, async (req, res) => {
+  console.log("like");
+  // const { _id } = req;
+  // const { postId } = req.params;
+  const { getPost } = req;
+  // console.log({ postId });
+  // console.log({ _id });
+  try {
+    console.log("postId");
+    if (getPost) {
+      console.log({ getPost });
     }
-  });
+    res.json({ post: getPost });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+  // try {
+  //   console.log(getPost);
+  //   // if (user._id === getPostById.user.toString()) {
+  //   //   return res
+  //   //     .status(403)
+  //   //     .json({ success: false, message: "You Can't Like Yourself!" });
+  //   // }
+  //   // if (!getPostById.likes.includes(user._id)) {
+  //   //   await getPostById.updateOne({ $push: { likes: user._id } });
+  //   //   res.status(200).json({ success: true, message: "Post Liked!" });
+  //   // } else {
+  //   //   await getPostById.updateOne({ $pull: { likes: user._id } });
+  //   //   res.status(200).json({ success: true, message: "Post Unliked!" });
+  //   // }
+  // } catch (err) {
+  //   res.status(500).json(err);
+  // }
+  // console.log("posts");
+});
 
 module.exports = { router };
