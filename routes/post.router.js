@@ -93,6 +93,8 @@ router
 router.route("/:postId/like").put(authVerify, async (req, res) => {
   const user = req.user;
   const { postId } = req.params;
+  // console.log({ postId });
+  // console.log({ user });
   try {
     const getPostById = await Post.findById(postId);
     if (!getPostById) {
@@ -116,4 +118,5 @@ router.route("/:postId/like").put(authVerify, async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 module.exports = { router };

@@ -8,6 +8,7 @@ const { router: loginRouter } = require("./routes/login.router");
 const { router: registerRouter } = require("./routes/register.router");
 const { router: usersRouter } = require("./routes/users.router");
 const { router: postRouter } = require("./routes/post.router");
+const { router: timelineRouter } = require("./routes/timeline.router");
 
 startConnection();
 const PORT = process.env.PORT || 8080;
@@ -19,6 +20,7 @@ app.use("/login", loginRouter);
 app.use("/register", registerRouter);
 app.use("/users", usersRouter);
 app.use("/post", postRouter);
+app.use("/timeline", timelineRouter);
 app.get("/", (req, res) => res.json({ success: true, message: "Hi" }));
 
 app.listen(PORT, () => console.log("server started at PORT :", PORT));
