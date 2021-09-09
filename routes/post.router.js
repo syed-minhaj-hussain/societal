@@ -93,10 +93,10 @@ router
   });
 
 router.param("postId", extractPostByPostId);
-router.route("/:postId/like").get(authVerify, async (req, res) => {
+router.route("/:postId/like").put(authVerify, async (req, res) => {
   console.log("like");
   // const { _id } = req;
-  // const { postId } = req.params;
+  const { postId } = req.params;
   const { getPost } = req;
   // console.log({ postId });
   // console.log({ _id });
@@ -111,6 +111,7 @@ router.route("/:postId/like").get(authVerify, async (req, res) => {
   }
   // try {
   //   console.log(getPost);
+  // const getPostById = await Post.findById(postId);
   //   // if (user._id === getPostById.user.toString()) {
   //   //   return res
   //   //     .status(403)
